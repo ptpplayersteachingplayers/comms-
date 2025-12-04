@@ -1,0 +1,412 @@
+/**
+ * PTP Communications Hub - Admin Branding Styles
+ * Version: 1.0
+ * Scoped under .ptp-comms-admin to avoid conflicts
+ */
+
+.ptp-comms-admin {
+    --ptp-yellow: #FCB900;
+    --ptp-ink: #0e0f11;
+    --ptp-bg: #f4f3f0;
+    --ptp-muted: #6b7280;
+    --ptp-border: #e5e7eb;
+    --ptp-radius: 14px;
+    --ptp-success: #22c55e;
+    --ptp-error: #ef4444;
+    --ptp-warning: #f59e0b;
+}
+
+/* Page wrapper + background */
+.ptp-comms-admin {
+    background: var(--ptp-bg);
+    padding: 24px;
+    margin: -10px -20px;
+}
+
+.ptp-comms-admin h1,
+.ptp-comms-admin h2 {
+    color: var(--ptp-ink);
+}
+
+.ptp-comms-admin h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.ptp-comms-admin .ptp-intro-text {
+    color: var(--ptp-muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+/* Cards for "Quick Actions" and sections */
+.ptp-comms-admin .ptp-card {
+    background: #ffffff;
+    border-radius: var(--ptp-radius);
+    border: 1px solid var(--ptp-border);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    transition: box-shadow 0.2s ease;
+}
+
+.ptp-comms-admin .ptp-card:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+}
+
+.ptp-comms-admin .ptp-card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.ptp-comms-admin .ptp-card-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--ptp-ink);
+    font-size: 15px;
+}
+
+.ptp-comms-admin .ptp-card-muted {
+    color: var(--ptp-muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Quick Start Grid */
+.ptp-comms-admin .ptp-quick-start-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.ptp-comms-admin .ptp-quick-card {
+    background: #ffffff;
+    border-radius: var(--ptp-radius);
+    border: 1px solid var(--ptp-border);
+    padding: 18px;
+    text-decoration: none;
+    display: block;
+    transition: all 0.2s ease;
+}
+
+.ptp-comms-admin .ptp-quick-card:hover {
+    border-color: var(--ptp-yellow);
+    box-shadow: 0 4px 12px rgba(252, 185, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.ptp-comms-admin .ptp-quick-card .dashicons {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: var(--ptp-yellow);
+    margin-bottom: 8px;
+}
+
+/* Status badges */
+.ptp-comms-admin .ptp-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ptp-comms-admin .ptp-status-ok {
+    background: rgba(34,197,94,0.12);
+    color: #166534;
+}
+
+.ptp-comms-admin .ptp-status-missing {
+    background: rgba(239,68,68,0.12);
+    color: #b91c1c;
+}
+
+.ptp-comms-admin .ptp-status-warning {
+    background: rgba(245,158,11,0.12);
+    color: #92400e;
+}
+
+.ptp-comms-admin .ptp-status-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ptp-comms-admin .ptp-status-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--ptp-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ptp-comms-admin .ptp-status-list li:last-child {
+    border-bottom: none;
+}
+
+/* Primary actions in PTP yellow */
+.ptp-comms-admin .button.button-primary {
+    background: var(--ptp-yellow);
+    border-color: var(--ptp-yellow);
+    color: #000;
+    font-weight: 600;
+    text-shadow: none;
+}
+
+.ptp-comms-admin .button.button-primary:hover,
+.ptp-comms-admin .button.button-primary:focus {
+    background: #e5a700;
+    border-color: #e5a700;
+    color: #000;
+}
+
+.ptp-comms-admin .button.button-primary:active {
+    background: #d09600;
+    border-color: #d09600;
+}
+
+/* Tables & empty states */
+.ptp-comms-admin .wp-list-table {
+    background: #ffffff;
+    border-radius: var(--ptp-radius);
+    overflow: hidden;
+    border: 1px solid var(--ptp-border);
+}
+
+.ptp-comms-admin .wp-list-table th,
+.ptp-comms-admin .wp-list-table td {
+    border-color: var(--ptp-border);
+}
+
+.ptp-comms-admin .wp-list-table thead th {
+    background: #fafafa;
+    font-weight: 600;
+}
+
+/* Empty state styling */
+.ptp-comms-admin .ptp-comms-empty {
+    background: #ffffff;
+    border-radius: var(--ptp-radius);
+    border: 2px dashed var(--ptp-border);
+    padding: 48px 32px;
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.ptp-comms-admin .ptp-comms-empty .dashicons {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: var(--ptp-yellow);
+    opacity: 0.3;
+    margin-bottom: 16px;
+}
+
+.ptp-comms-admin .ptp-comms-empty-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--ptp-ink);
+}
+
+.ptp-comms-admin .ptp-comms-empty-body {
+    color: var(--ptp-muted);
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.ptp-comms-admin .ptp-comms-empty .button {
+    margin: 0 6px;
+}
+
+/* Tabs on Settings page */
+.ptp-comms-admin .ptp-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--ptp-border);
+    padding-bottom: 0;
+}
+
+.ptp-comms-admin .ptp-tab {
+    padding: 10px 18px;
+    border-radius: var(--ptp-radius) var(--ptp-radius) 0 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ptp-muted);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+}
+
+.ptp-comms-admin .ptp-tab:hover {
+    color: var(--ptp-ink);
+    background: rgba(252, 185, 0, 0.05);
+}
+
+.ptp-comms-admin .ptp-tab-active {
+    background: rgba(252, 185, 0, 0.1);
+    border-bottom-color: var(--ptp-yellow);
+    color: var(--ptp-ink);
+    font-weight: 600;
+}
+
+.ptp-comms-admin .ptp-tab-content {
+    display: none;
+}
+
+.ptp-comms-admin .ptp-tab-content-active {
+    display: block;
+}
+
+/* Info boxes */
+.ptp-comms-admin .ptp-info-box {
+    background: rgba(252, 185, 0, 0.08);
+    border: 1px solid rgba(252, 185, 0, 0.3);
+    border-left: 4px solid var(--ptp-yellow);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.ptp-comms-admin .ptp-info-box.info {
+    background: rgba(0, 115, 170, 0.08);
+    border-color: rgba(0, 115, 170, 0.3);
+    border-left-color: #0073aa;
+}
+
+.ptp-comms-admin .ptp-info-box.success {
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.3);
+    border-left-color: var(--ptp-success);
+}
+
+/* Form sections */
+.ptp-comms-admin .form-table th {
+    font-weight: 600;
+    color: var(--ptp-ink);
+}
+
+.ptp-comms-admin .form-table input[type="text"],
+.ptp-comms-admin .form-table input[type="email"],
+.ptp-comms-admin .form-table input[type="url"],
+.ptp-comms-admin .form-table textarea,
+.ptp-comms-admin .form-table select {
+    border-color: var(--ptp-border);
+    border-radius: 8px;
+}
+
+.ptp-comms-admin .form-table input[type="text"]:focus,
+.ptp-comms-admin .form-table input[type="email"]:focus,
+.ptp-comms-admin .form-table input[type="url"]:focus,
+.ptp-comms-admin .form-table textarea:focus,
+.ptp-comms-admin .form-table select:focus {
+    border-color: var(--ptp-yellow);
+    box-shadow: 0 0 0 1px var(--ptp-yellow);
+}
+
+/* Helper text */
+.ptp-comms-admin .ptp-helper-text {
+    color: var(--ptp-muted);
+    font-size: 13px;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* Toggle switch */
+.ptp-comms-admin .ptp-toggle {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.ptp-comms-admin .ptp-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.ptp-comms-admin .ptp-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.ptp-comms-admin .ptp-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+.ptp-comms-admin .ptp-toggle input:checked + .ptp-toggle-slider {
+    background-color: var(--ptp-yellow);
+}
+
+.ptp-comms-admin .ptp-toggle input:checked + .ptp-toggle-slider:before {
+    transform: translateX(24px);
+}
+
+/* Action links */
+.ptp-comms-admin .row-actions {
+    color: var(--ptp-muted);
+}
+
+.ptp-comms-admin .row-actions a {
+    color: var(--ptp-ink);
+}
+
+.ptp-comms-admin .row-actions a:hover {
+    color: var(--ptp-yellow);
+}
+
+/* Section headers */
+.ptp-comms-admin .ptp-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.ptp-comms-admin .ptp-section-header h2 {
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .ptp-comms-admin .ptp-quick-start-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ptp-comms-admin .ptp-tabs {
+        flex-wrap: wrap;
+    }
+}
