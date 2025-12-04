@@ -160,37 +160,68 @@ class PTP_Comms_Hub_Loader {
     
     public function ajax_send_message() {
         check_ajax_referer('ptp_comms_hub_nonce', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(array('message' => 'Unauthorized'), 403);
         }
-        
+
         global $wpdb;
-        
+
         $conversation_id = isset($_POST['conversation_id']) ? intval($_POST['conversation_id']) : 0;
         $contact_id = isset($_POST['contact_id']) ? intval($_POST['contact_id']) : 0;
         $message_type = isset($_POST['message_type']) ? sanitize_text_field($_POST['message_type']) : 'sms';
         $message = isset($_POST['message']) ? sanitize_textarea_field($_POST['message']) : '';
-        
+
         if (empty($message) || empty($contact_id)) {
             wp_send_json_error(array('message' => 'Message and contact required'));
         }
-        
+
+        // DUPLICATE PREVENTION: Create unique lock key for this message
+        $lock_key = 'ptp_msg_lock_' . md5($contact_id . $message . get_current_user_id());
+
+        // Check if this exact message was just sent (within 10 seconds)
+        if (get_transient($lock_key)) {
+            // Return success but don't send again - likely a duplicate request
+            $existing = $wpdb->get_row($wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}ptp_messages
+                 WHERE contact_id = %d AND message_body = %s AND direction = 'outbound'
+                 ORDER BY created_at DESC LIMIT 1",
+                $contact_id, $message
+            ));
+            if ($existing) {
+                wp_send_json_success(array(
+                    'message' => (array) $existing,
+                    'sid' => $existing->twilio_sid,
+                    'duplicate' => true
+                ));
+            }
+        }
+
+        // Set lock to prevent duplicate sends
+        set_transient($lock_key, true, 10);
+
         // Get contact
         $contact = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}ptp_contacts WHERE id = %d",
             $contact_id
         ));
-        
+
         if (!$contact) {
+            delete_transient($lock_key);
             wp_send_json_error(array('message' => 'Contact not found'));
         }
-        
-        // Send message via Twilio
+
+        // Send message via appropriate channel
+        $result = array('success' => false, 'error' => 'Invalid message type');
+
         if ($message_type === 'sms') {
             $sms_service = new PTP_Comms_Hub_SMS_Service();
             $result = $sms_service->send_sms($contact->parent_phone, $message);
-        } else {
+        } elseif ($message_type === 'whatsapp') {
+            if (function_exists('ptp_comms_send_whatsapp')) {
+                $result = ptp_comms_send_whatsapp($contact->parent_phone, $message);
+            }
+        } elseif ($message_type === 'voice') {
             $voice_service = new PTP_Comms_Hub_Voice_Service();
             $result = $voice_service->make_call($contact->parent_phone, $message);
         }
@@ -239,29 +270,40 @@ class PTP_Comms_Hub_Loader {
     
     public function ajax_get_new_messages() {
         check_ajax_referer('ptp_comms_hub_nonce', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(array('message' => 'Unauthorized'), 403);
         }
-        
+
         global $wpdb;
-        
+
         $conversation_id = isset($_GET['conversation_id']) ? intval($_GET['conversation_id']) : 0;
         $after_id = isset($_GET['after_id']) ? intval($_GET['after_id']) : 0;
-        
+
         if (empty($conversation_id)) {
             wp_send_json_error(array('message' => 'Conversation ID required'));
         }
-        
-        $messages = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}ptp_messages
-            WHERE conversation_id = %d AND id > %d
-            ORDER BY created_at ASC",
-            $conversation_id,
-            $after_id
-        ));
-        
-        // Mark conversation as read
+
+        // Use transient cache to reduce DB load on polling
+        $cache_key = 'ptp_new_msgs_' . $conversation_id . '_' . $after_id;
+        $messages = get_transient($cache_key);
+
+        if ($messages === false) {
+            $messages = $wpdb->get_results($wpdb->prepare(
+                "SELECT id, conversation_id, contact_id, direction, message_type, message_body, status, created_at
+                FROM {$wpdb->prefix}ptp_messages
+                WHERE conversation_id = %d AND id > %d
+                ORDER BY created_at ASC
+                LIMIT 50",
+                $conversation_id,
+                $after_id
+            ));
+
+            // Cache for 2 seconds to handle rapid polling
+            set_transient($cache_key, $messages, 2);
+        }
+
+        // Mark conversation as read (only if we have new messages)
         if (!empty($messages)) {
             $wpdb->update(
                 $wpdb->prefix . 'ptp_conversations',
@@ -269,7 +311,7 @@ class PTP_Comms_Hub_Loader {
                 array('id' => $conversation_id)
             );
         }
-        
+
         wp_send_json_success(array('messages' => $messages));
     }
     

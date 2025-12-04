@@ -1380,22 +1380,16 @@ class PTP_Comms_Hub_Admin_Page_Inbox {
             if (conversationId > 0) {
                 startPolling();
             }
-            
+
             // Function to poll for new messages
             function startPolling() {
                 pollingInterval = setInterval(function() {
                     checkForNewMessages();
-                }, 3000); // Check every 3 seconds
+                }, 8000); // Check every 8 seconds (optimized from 3s)
             }
-            
+
             // Function to check for new messages
             function checkForNewMessages() {
-                console.log('[PTP Polling] Checking for new messages...', {
-                    conversationId: conversationId,
-                    lastMessageId: lastMessageId,
-                    url: '<?php echo admin_url('admin-ajax.php'); ?>'
-                });
-                
                 $.ajax({
                     url: '<?php echo admin_url('admin-ajax.php'); ?>',
                     type: 'GET',
@@ -1406,31 +1400,20 @@ class PTP_Comms_Hub_Admin_Page_Inbox {
                         after_id: lastMessageId
                     },
                     success: function(response) {
-                        console.log('[PTP Polling] Response received:', response);
-                        
                         if (response.success && response.data.messages && response.data.messages.length > 0) {
-                            console.log('[PTP Polling] New messages found:', response.data.messages.length);
-                            
                             response.data.messages.forEach(function(msg) {
-                                console.log('[PTP Polling] Appending message:', msg);
                                 appendMessage(msg);
                                 lastMessageId = Math.max(lastMessageId, msg.id);
-                                
-                                // Mark conversation as read if we're viewing it
+
+                                // Update badge if inbound message
                                 if (msg.direction === 'inbound') {
                                     updateUnreadBadge();
                                 }
                             });
-                        } else {
-                            console.log('[PTP Polling] No new messages');
                         }
                     },
-                    error: function(xhr, status, error) {
-                        console.error('[PTP Polling] Error:', {
-                            status: status,
-                            error: error,
-                            response: xhr.responseText
-                        });
+                    error: function() {
+                        // Silent fail - will retry on next poll
                     }
                 });
             }
@@ -1446,29 +1429,46 @@ class PTP_Comms_Hub_Admin_Page_Inbox {
                     clearInterval(pollingInterval);
                 }
             });
-            
-            // AJAX form submission
+
+            // Unbind any existing handlers to prevent duplicates
+            $(document).off('submit', '#send-message-form');
+            $('#send-message-form').off('submit');
+
+            // Track submission state to prevent double-sends
+            let isSubmitting = false;
+
+            // AJAX form submission (single handler)
             $('#send-message-form').on('submit', function(e) {
                 e.preventDefault();
-                
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                // Prevent double submission
+                if (isSubmitting) {
+                    return false;
+                }
+
                 const $form = $(this);
                 const $submitBtn = $form.find('button[type="submit"]');
                 const $textarea = $form.find('textarea[name="message"]');
                 const message = $textarea.val().trim();
-                
+
                 if (!message) {
                     alert('Please enter a message.');
                     return false;
                 }
-                
+
+                // Lock submission
+                isSubmitting = true;
+
                 // Disable form during submission
                 $submitBtn.prop('disabled', true);
                 $textarea.prop('disabled', true);
-                
+
                 // Update button text
                 const originalHtml = $submitBtn.html();
                 $submitBtn.html('<span class="dashicons dashicons-update"></span> Sending...');
-                
+
                 // Prepare data
                 const formData = {
                     conversation_id: $form.find('input[name="conversation_id"]').val(),
@@ -1476,7 +1476,7 @@ class PTP_Comms_Hub_Admin_Page_Inbox {
                     message: message,
                     message_type: $form.find('select[name="message_type"]').val()
                 };
-                
+
                 // Send AJAX request
                 $.ajax({
                     url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -1494,10 +1494,10 @@ class PTP_Comms_Hub_Admin_Page_Inbox {
                             // Add message to thread
                             appendMessage(response.data.message);
                             lastMessageId = Math.max(lastMessageId, response.data.message.id);
-                            
+
                             // Clear textarea
                             $textarea.val('').css('height', 'auto');
-                            
+
                             // Show success feedback
                             showNotification('Message sent successfully!', 'success');
                         }
@@ -1510,8 +1510,15 @@ class PTP_Comms_Hub_Admin_Page_Inbox {
                         // Re-enable form
                         $submitBtn.prop('disabled', false).html(originalHtml);
                         $textarea.prop('disabled', false).focus();
+
+                        // Unlock submission after delay
+                        setTimeout(function() {
+                            isSubmitting = false;
+                        }, 1000);
                     }
                 });
+
+                return false;
             });
             
             // Function to append message to thread

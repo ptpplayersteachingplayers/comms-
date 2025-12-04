@@ -3,8 +3,8 @@
     
     const PTPCommsAdmin = {
         config: {
-            autoRefreshInterval: 30000,
-            messagePollingInterval: 5000,
+            autoRefreshInterval: 60000,  // Reduced from 30s to 60s
+            messagePollingInterval: 8000, // Reduced from 5s to 8s for less server load
             notificationDuration: 5000,
             tooltipDelay: 200
         },
