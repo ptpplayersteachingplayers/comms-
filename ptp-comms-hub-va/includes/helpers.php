@@ -194,15 +194,39 @@ function ptp_comms_normalize_phone($phone) {
  */
 function ptp_comms_log_message($contact_id, $message_type, $direction, $content, $meta = array()) {
     global $wpdb;
-    
+
     error_log('[PTP Log Message] Contact ID: ' . $contact_id . ', Direction: ' . $direction . ', Type: ' . $message_type);
-    
+
+    // Check for duplicate by twilio_sid first (prevents webhook retry duplicates)
+    if (!empty($meta['twilio_sid'])) {
+        $existing = $wpdb->get_var($wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}ptp_messages WHERE twilio_sid = %s LIMIT 1",
+            $meta['twilio_sid']
+        ));
+        if ($existing) {
+            error_log('[PTP Log Message] Duplicate detected by twilio_sid: ' . $meta['twilio_sid']);
+            return (int) $existing;
+        }
+    }
+
     // Get or create conversation
     $conversation_id = PTP_Comms_Hub_Conversations::get_or_create_conversation($contact_id);
     error_log('[PTP Log Message] Conversation ID: ' . $conversation_id);
-    
+
+    // Check for duplicate by content + contact + time window (within 30 seconds)
+    $duplicate_check = $wpdb->get_var($wpdb->prepare(
+        "SELECT id FROM {$wpdb->prefix}ptp_messages
+         WHERE contact_id = %d AND message_body = %s AND direction = %s
+         AND created_at > DATE_SUB(NOW(), INTERVAL 30 SECOND) LIMIT 1",
+        $contact_id, $content, $direction
+    ));
+    if ($duplicate_check) {
+        error_log('[PTP Log Message] Duplicate detected by content/time window');
+        return (int) $duplicate_check;
+    }
+
     $current_time = current_time('mysql');
-    
+
     // Log to messages table (for conversation view)
     $message_data = array(
         'conversation_id' => $conversation_id,
@@ -216,9 +240,9 @@ function ptp_comms_log_message($contact_id, $message_type, $direction, $content,
         'created_at' => $current_time,
         'updated_at' => $current_time
     );
-    
+
     error_log('[PTP Log Message] Message data: ' . print_r($message_data, true));
-    
+
     $result = $wpdb->insert(
         $wpdb->prefix . 'ptp_messages',
         $message_data

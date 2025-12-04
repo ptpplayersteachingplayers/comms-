@@ -276,46 +276,181 @@ class PTP_Comms_Hub_Notifications {
     /**
      * Create notification for new SMS reply
      */
-    public static function notify_sms_reply($contact_id, $message_content) {
+    public static function notify_sms_reply($contact_id, $message_content, $channel = 'sms') {
         global $wpdb;
-        
+
         $contact = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}ptp_contacts WHERE id = %d",
             $contact_id
         ));
-        
+
         if (!$contact) {
             return false;
         }
-        
+
         $contact_name = trim($contact->parent_first_name . ' ' . $contact->parent_last_name);
         if (empty($contact_name)) {
             $contact_name = function_exists('ptp_comms_format_phone') ? ptp_comms_format_phone($contact->parent_phone) : $contact->parent_phone;
         }
-        
+
+        $channel_label = strtoupper($channel);
+        $notification_data = array(
+            'contact_id' => $contact_id,
+            'notification_type' => 'contact_replied',
+            'title' => "New {$channel_label} from {$contact_name}",
+            'message' => substr($message_content, 0, 200),
+            'action_url' => admin_url('admin.php?page=ptp-comms-inbox&contact=' . $contact_id),
+            'action_text' => 'View Conversation',
+            'priority' => 'high'
+        );
+
         // Notify assigned VA or all admins
         if ($contact->assigned_va) {
-            return self::create(array(
-                'user_id' => $contact->assigned_va,
-                'contact_id' => $contact_id,
-                'notification_type' => 'contact_replied',
-                'title' => "Reply from {$contact_name}",
-                'message' => substr($message_content, 0, 200),
-                'action_url' => admin_url('admin.php?page=ptp-comms-inbox&contact=' . $contact_id),
-                'action_text' => 'View Conversation',
-                'priority' => 'high'
-            ));
+            $notification_data['user_id'] = $contact->assigned_va;
+            $result = self::create($notification_data);
+
+            // Send email notification
+            self::send_email_notification($contact->assigned_va, $notification_data, $contact);
+
+            // Send WhatsApp notification if enabled
+            self::send_whatsapp_notification($contact->assigned_va, $notification_data);
         } else {
-            return self::notify_admins(array(
-                'contact_id' => $contact_id,
-                'notification_type' => 'contact_replied',
-                'title' => "Reply from {$contact_name}",
-                'message' => substr($message_content, 0, 200),
-                'action_url' => admin_url('admin.php?page=ptp-comms-inbox&contact=' . $contact_id),
-                'action_text' => 'View Conversation',
-                'priority' => 'high'
-            ));
+            $result = self::notify_admins($notification_data);
+
+            // Send email to all admins
+            self::send_email_to_admins($notification_data, $contact);
+
+            // Send WhatsApp to subscribed users
+            self::broadcast_whatsapp_notification($notification_data);
         }
+
+        return $result;
+    }
+
+    /**
+     * Send email notification to a user
+     */
+    public static function send_email_notification($user_id, $notification_data, $contact = null) {
+        $user = get_user_by('id', $user_id);
+        if (!$user || empty($user->user_email)) {
+            return false;
+        }
+
+        // Check user email notification preference
+        $email_enabled = get_user_meta($user_id, 'ptp_email_notifications', true);
+        if ($email_enabled === 'disabled') {
+            return false;
+        }
+
+        $site_name = get_bloginfo('name');
+        $types = self::get_notification_types();
+        $type = isset($notification_data['notification_type']) ? $notification_data['notification_type'] : 'system';
+        $icon = isset($types[$type]['icon']) ? $types[$type]['icon'] : '📣';
+
+        $subject = "[{$site_name}] {$icon} " . ($notification_data['title'] ?? 'New Notification');
+
+        // Build HTML email
+        $message = self::build_email_template($notification_data, $contact, $user);
+
+        // Set HTML headers
+        $headers = array(
+            'Content-Type: text/html; charset=UTF-8',
+            'From: ' . $site_name . ' <' . get_option('admin_email') . '>'
+        );
+
+        return wp_mail($user->user_email, $subject, $message, $headers);
+    }
+
+    /**
+     * Send email notification to all admins
+     */
+    public static function send_email_to_admins($notification_data, $contact = null) {
+        $admin_users = get_users(array('role__in' => array('administrator', 'editor')));
+        $results = array();
+
+        foreach ($admin_users as $admin) {
+            $results[$admin->ID] = self::send_email_notification($admin->ID, $notification_data, $contact);
+        }
+
+        return $results;
+    }
+
+    /**
+     * Build HTML email template
+     */
+    private static function build_email_template($notification_data, $contact = null, $user = null) {
+        $site_name = get_bloginfo('name');
+        $site_url = home_url();
+        $types = self::get_notification_types();
+        $type = isset($notification_data['notification_type']) ? $notification_data['notification_type'] : 'system';
+        $type_label = isset($types[$type]['label']) ? $types[$type]['label'] : 'Notification';
+
+        $contact_info = '';
+        if ($contact) {
+            $contact_name = trim($contact->parent_first_name . ' ' . $contact->parent_last_name);
+            $phone = function_exists('ptp_comms_format_phone') ? ptp_comms_format_phone($contact->parent_phone) : $contact->parent_phone;
+            $contact_info = "
+                <div style='background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;'>
+                    <strong>Contact:</strong> {$contact_name}<br>
+                    <strong>Phone:</strong> {$phone}
+                </div>
+            ";
+        }
+
+        $action_button = '';
+        if (!empty($notification_data['action_url'])) {
+            $btn_text = !empty($notification_data['action_text']) ? $notification_data['action_text'] : 'View Details';
+            $action_button = "
+                <a href='{$notification_data['action_url']}' style='display: inline-block; background: #0073aa; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin: 15px 0; font-weight: bold;'>{$btn_text}</a>
+            ";
+        }
+
+        $greeting = $user ? "Hi {$user->display_name}," : "Hello,";
+
+        return "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        </head>
+        <body style='font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen-Sans, Ubuntu, Cantarell, \"Helvetica Neue\", sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;'>
+            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;'>
+                <h1 style='color: #ffffff; margin: 0; font-size: 24px;'>{$site_name}</h1>
+                <p style='color: rgba(255,255,255,0.9); margin: 5px 0 0 0;'>Communications Hub</p>
+            </div>
+
+            <div style='background: #ffffff; padding: 30px; border: 1px solid #e1e4e8; border-top: none;'>
+                <p style='margin-top: 0;'>{$greeting}</p>
+
+                <div style='background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;'>
+                    <strong style='color: #856404;'>{$type_label}</strong>
+                    <h2 style='margin: 10px 0 5px 0; color: #1a1a1a;'>" . esc_html($notification_data['title'] ?? 'New Notification') . "</h2>
+                </div>
+
+                " . (!empty($notification_data['message']) ? "<div style='background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #0073aa;'><p style='margin: 0; white-space: pre-wrap;'>" . esc_html($notification_data['message']) . "</p></div>" : "") . "
+
+                {$contact_info}
+
+                <div style='text-align: center;'>
+                    {$action_button}
+                </div>
+
+                <hr style='border: none; border-top: 1px solid #e1e4e8; margin: 30px 0;'>
+
+                <p style='color: #666; font-size: 13px; margin-bottom: 0;'>
+                    This notification was sent from your PTP Communications Hub.<br>
+                    <a href='" . admin_url('admin.php?page=ptp-comms-dashboard') . "' style='color: #0073aa;'>View all notifications</a> |
+                    <a href='" . admin_url('profile.php') . "' style='color: #0073aa;'>Manage preferences</a>
+                </p>
+            </div>
+
+            <div style='text-align: center; padding: 20px; color: #666; font-size: 12px;'>
+                <p>&copy; " . date('Y') . " {$site_name}. All rights reserved.</p>
+            </div>
+        </body>
+        </html>
+        ";
     }
     
     /**
