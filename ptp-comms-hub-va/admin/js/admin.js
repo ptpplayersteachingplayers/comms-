@@ -173,11 +173,16 @@
         addMessageToThread: function(message, animate = true) {
             const $thread = $('.ptp-conversation-thread');
             if (!$thread.length) return;
-            
+
+            // Check if message already exists (prevent duplicates)
+            if (document.querySelector(`[data-message-id="${message.id}"]`)) {
+                return;
+            }
+
             const isInbound = message.direction === 'inbound';
             const messageClass = isInbound ? 'inbound' : 'outbound';
             const statusBadge = this.getStatusBadge(message.status);
-            
+
             const $messageDiv = $(`
                 <div class="ptp-message ${messageClass}" data-message-id="${message.id}" style="${animate ? 'opacity: 0; transform: translateY(10px);' : ''}">
                     <div class="ptp-message-content">
@@ -190,7 +195,7 @@
                     </div>
                 </div>
             `);
-            
+
             $thread.append($messageDiv);
             
             if (animate) {

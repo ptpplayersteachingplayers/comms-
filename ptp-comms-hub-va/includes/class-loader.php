@@ -49,6 +49,7 @@ class PTP_Comms_Hub_Loader {
         require_once PTP_COMMS_HUB_PATH . 'includes/class-zoom-phone.php';
         require_once PTP_COMMS_HUB_PATH . 'includes/class-whatsapp-integration.php';
         require_once PTP_COMMS_HUB_PATH . 'includes/class-user-profile-whatsapp.php';
+        require_once PTP_COMMS_HUB_PATH . 'includes/class-private-training-integration.php';
 
         // API and webhooks
         require_once PTP_COMMS_HUB_PATH . 'includes/class-webhooks.php';
