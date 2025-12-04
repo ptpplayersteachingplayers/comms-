@@ -1,0 +1,753 @@
+/**
+ * PTP Comms Hub - VA Dashboard Styles
+ * v4.0.0
+ */
+
+/* ============================
+   NOTES PANEL
+   ============================ */
+.ptp-notes-panel {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.ptp-notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    background: #f9f9f9;
+    border-radius: 8px 8px 0 0;
+}
+
+.ptp-notes-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.ptp-notes-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.ptp-note-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.ptp-note-item:hover {
+    background-color: #fafafa;
+}
+
+.ptp-note-item:last-child {
+    border-bottom: none;
+}
+
+.ptp-note-item.pinned {
+    background-color: #fffbeb;
+    border-left: 3px solid #f59e0b;
+}
+
+.ptp-note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.ptp-note-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #666;
+}
+
+.ptp-note-type .icon {
+    font-size: 14px;
+}
+
+.ptp-note-meta {
+    font-size: 11px;
+    color: #999;
+}
+
+.ptp-note-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #1e293b;
+}
+
+.ptp-note-content {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+}
+
+.ptp-note-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.ptp-note-author {
+    font-size: 11px;
+    color: #999;
+}
+
+.ptp-note-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.ptp-note-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    color: #666;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.ptp-note-actions button:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+/* Note Form */
+.ptp-note-form {
+    padding: 20px;
+    background: #f9f9f9;
+    border-top: 1px solid #e0e0e0;
+}
+
+.ptp-note-form textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.ptp-note-form textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ptp-note-form-row {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    align-items: center;
+}
+
+.ptp-note-form-row select,
+.ptp-note-form-row input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+/* ============================
+   ACTIVITY TIMELINE
+   ============================ */
+.ptp-timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.ptp-timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e5e7eb;
+}
+
+.ptp-timeline-item {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.ptp-timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.ptp-timeline-icon {
+    position: absolute;
+    left: -25px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.ptp-timeline-icon.sms { border-color: #3b82f6; background: #eff6ff; }
+.ptp-timeline-icon.call { border-color: #22c55e; background: #f0fdf4; }
+.ptp-timeline-icon.email { border-color: #8b5cf6; background: #f5f3ff; }
+.ptp-timeline-icon.note { border-color: #6366f1; background: #eef2ff; }
+.ptp-timeline-icon.order { border-color: #10b981; background: #ecfdf5; }
+.ptp-timeline-icon.reminder { border-color: #ec4899; background: #fdf2f8; }
+
+.ptp-timeline-content {
+    background: #f9fafb;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.ptp-timeline-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.ptp-timeline-description {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.ptp-timeline-time {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+/* ============================
+   REMINDERS WIDGET
+   ============================ */
+.ptp-reminders-widget {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.ptp-reminder-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 12px;
+}
+
+.ptp-reminder-item:last-child {
+    border-bottom: none;
+}
+
+.ptp-reminder-item.overdue {
+    background: #fef2f2;
+    border-left: 3px solid #ef4444;
+}
+
+.ptp-reminder-item.today {
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+}
+
+.ptp-reminder-checkbox {
+    flex-shrink: 0;
+}
+
+.ptp-reminder-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.ptp-reminder-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.ptp-reminder-title {
+    font-weight: 500;
+    font-size: 13px;
+    color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ptp-reminder-due {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.ptp-reminder-due.overdue {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.ptp-reminder-priority {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.ptp-reminder-priority.urgent { background: #ef4444; }
+.ptp-reminder-priority.high { background: #f97316; }
+.ptp-reminder-priority.normal { background: #3b82f6; }
+.ptp-reminder-priority.low { background: #6b7280; }
+
+/* ============================
+   RELATIONSHIP SCORE
+   ============================ */
+.ptp-relationship-score {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ptp-score-bar {
+    width: 100px;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.ptp-score-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.ptp-score-fill.high { background: linear-gradient(90deg, #22c55e, #16a34a); }
+.ptp-score-fill.medium { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.ptp-score-fill.low { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+.ptp-score-value {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.ptp-score-value.high { color: #16a34a; }
+.ptp-score-value.medium { color: #d97706; }
+.ptp-score-value.low { color: #dc2626; }
+
+/* ============================
+   NOTIFICATIONS DROPDOWN
+   ============================ */
+.ptp-notifications-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 360px;
+    max-height: 400px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.ptp-notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.ptp-notifications-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ptp-notifications-list {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.ptp-notification-item {
+    display: flex;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.ptp-notification-item:hover {
+    background: #f9fafb;
+}
+
+.ptp-notification-item.unread {
+    background: #eff6ff;
+}
+
+.ptp-notification-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.ptp-notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.ptp-notification-title {
+    font-weight: 500;
+    font-size: 13px;
+    color: #1f2937;
+    margin-bottom: 3px;
+}
+
+.ptp-notification-message {
+    font-size: 12px;
+    color: #6b7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ptp-notification-time {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+/* ============================
+   SEGMENT BUILDER
+   ============================ */
+.ptp-segment-builder {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.ptp-condition-group {
+    margin-bottom: 15px;
+}
+
+.ptp-condition-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+}
+
+.ptp-condition-row select,
+.ptp-condition-row input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.ptp-condition-row select:focus,
+.ptp-condition-row input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ptp-condition-remove {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 16px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.ptp-condition-remove:hover {
+    opacity: 1;
+}
+
+/* ============================
+   VIP BADGE
+   ============================ */
+.ptp-vip-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.ptp-vip-badge::before {
+    content: '⭐';
+    font-size: 10px;
+}
+
+/* ============================
+   CONTACT CARD ENHANCEMENTS
+   ============================ */
+.ptp-contact-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 20px;
+}
+
+.ptp-contact-info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.ptp-contact-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.ptp-contact-details h2 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+}
+
+.ptp-contact-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.ptp-contact-quick-stats {
+    display: flex;
+    gap: 30px;
+}
+
+.ptp-quick-stat {
+    text-align: center;
+}
+
+.ptp-quick-stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.ptp-quick-stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+}
+
+/* ============================
+   EMPTY STATES
+   ============================ */
+.ptp-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+.ptp-empty-state .icon {
+    font-size: 48px;
+    opacity: 0.3;
+    margin-bottom: 15px;
+}
+
+.ptp-empty-state h4 {
+    margin: 0 0 8px 0;
+    color: #374151;
+}
+
+.ptp-empty-state p {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+}
+
+/* ============================
+   RESPONSIVE ADJUSTMENTS
+   ============================ */
+@media (max-width: 1200px) {
+    .ptp-contact-header {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .ptp-contact-quick-stats {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 782px) {
+    .ptp-condition-row {
+        flex-wrap: wrap;
+    }
+    
+    .ptp-condition-row select,
+    .ptp-condition-row input {
+        width: 100%;
+    }
+    
+    .ptp-notifications-dropdown {
+        width: 100%;
+        max-width: 320px;
+    }
+}
+
+/* ============================
+   SENTIMENT INDICATORS
+   ============================ */
+.ptp-sentiment {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.ptp-sentiment.very_positive { background: #dcfce7; color: #166534; }
+.ptp-sentiment.positive { background: #ecfccb; color: #3f6212; }
+.ptp-sentiment.neutral { background: #f3f4f6; color: #374151; }
+.ptp-sentiment.negative { background: #fef3c7; color: #92400e; }
+.ptp-sentiment.very_negative { background: #fee2e2; color: #991b1b; }
+
+/* ============================
+   TAGS INPUT
+   ============================ */
+.ptp-tags-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #fff;
+    min-height: 42px;
+    align-items: center;
+}
+
+.ptp-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #e5e7eb;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.ptp-tag-remove {
+    cursor: pointer;
+    opacity: 0.6;
+    font-size: 14px;
+}
+
+.ptp-tag-remove:hover {
+    opacity: 1;
+}
+
+.ptp-tags-input input {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 100px;
+    padding: 4px;
+}
+
+/* ============================
+   LOADING STATES
+   ============================ */
+.ptp-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.ptp-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: ptp-spin 0.8s linear infinite;
+}
+
+@keyframes ptp-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================
+   QUICK ACTIONS BAR
+   ============================ */
+.ptp-quick-actions {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.ptp-quick-action {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #374151;
+    transition: all 0.2s;
+}
+
+.ptp-quick-action:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.ptp-quick-action .icon {
+    font-size: 16px;
+}

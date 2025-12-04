@@ -1,0 +1,955 @@
+/**
+ * PTP Communications Hub - Responsive & Mobile-First CSS
+ * Version: 1.0.0
+ * Comprehensive responsive design for all screen sizes
+ */
+
+/* ========================================
+   CSS CUSTOM PROPERTIES FOR RESPONSIVE
+   ======================================== */
+:root {
+    --ptp-mobile-padding: 12px;
+    --ptp-tablet-padding: 16px;
+    --ptp-desktop-padding: 24px;
+    --ptp-mobile-gap: 8px;
+    --ptp-tablet-gap: 12px;
+    --ptp-desktop-gap: 20px;
+}
+
+/* ========================================
+   MOBILE-FIRST BASE STYLES
+   ======================================== */
+
+/* Wrap container */
+.wrap.ptp-comms-wrap {
+    padding: var(--ptp-mobile-padding);
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Header section */
+.ptp-page-header {
+    flex-direction: column;
+    gap: var(--ptp-mobile-gap);
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.ptp-page-header h1 {
+    font-size: 22px;
+    margin: 0;
+}
+
+.ptp-page-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+}
+
+.ptp-page-header-actions .ptp-comms-button {
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+}
+
+/* ========================================
+   INBOX RESPONSIVE STYLES
+   ======================================== */
+
+/* Inbox container */
+.ptp-inbox-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ptp-mobile-gap);
+}
+
+/* Conversation list */
+.ptp-conversation-list-wrapper {
+    width: 100%;
+}
+
+.ptp-conversation-item {
+    padding: 12px;
+    gap: 10px;
+}
+
+.ptp-conversation-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+}
+
+.ptp-conversation-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.ptp-conversation-name {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ptp-conversation-preview {
+    font-size: 13px;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ptp-conversation-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 60px;
+}
+
+.ptp-conversation-time {
+    font-size: 11px;
+}
+
+/* Channel badges */
+.ptp-channel-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.ptp-channel-badge.sms {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.ptp-channel-badge.whatsapp {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.ptp-channel-badge.voice {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.ptp-channel-badge.teams {
+    background: #e8eaf6;
+    color: #3f51b5;
+}
+
+/* Filter tabs responsive */
+.ptp-comms-tabs {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: 0;
+    padding-bottom: 2px;
+}
+
+.ptp-comms-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.ptp-comms-tab {
+    flex-shrink: 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.ptp-comms-tab .dashicons {
+    display: none;
+}
+
+/* Search bar responsive */
+.ptp-search-bar {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.ptp-search-input-wrapper {
+    width: 100%;
+    min-width: unset;
+}
+
+.ptp-search-bar .ptp-comms-button {
+    width: 100%;
+}
+
+/* Bulk actions */
+.ptp-bulk-actions-bar {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+}
+
+.ptp-bulk-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Table responsive */
+.ptp-comms-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ptp-comms-table {
+    min-width: 600px;
+}
+
+.ptp-comms-table th,
+.ptp-comms-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+}
+
+/* Hide columns on mobile */
+.ptp-hide-mobile {
+    display: none;
+}
+
+/* Conversation view responsive */
+.ptp-conversation-view-layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ptp-mobile-gap);
+}
+
+.ptp-conversation-main {
+    order: 1;
+}
+
+.ptp-conversation-sidebar {
+    order: 2;
+}
+
+/* Message thread */
+.ptp-conversation-thread {
+    height: 400px;
+    max-height: 60vh;
+    padding: 12px;
+}
+
+.ptp-message-bubble {
+    max-width: 85%;
+    padding: 10px 14px;
+}
+
+.ptp-message-content {
+    font-size: 14px;
+}
+
+.ptp-message-meta {
+    font-size: 10px;
+}
+
+/* Message compose */
+.ptp-message-compose {
+    padding: 12px;
+}
+
+.ptp-message-compose-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ptp-message-compose-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ptp-message-compose-row .ptp-comms-form-control {
+    width: 100%;
+}
+
+.ptp-message-compose-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.ptp-message-compose-actions .ptp-comms-button {
+    flex: 1;
+}
+
+/* Contact sidebar */
+.ptp-contact-sidebar {
+    padding: 16px;
+}
+
+.ptp-contact-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+}
+
+.ptp-contact-avatar-large {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    margin: 0 auto;
+}
+
+.ptp-contact-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ptp-contact-actions .ptp-comms-button {
+    width: 100%;
+}
+
+/* ========================================
+   TABLET STYLES (768px+)
+   ======================================== */
+@media (min-width: 768px) {
+    .wrap.ptp-comms-wrap {
+        padding: var(--ptp-tablet-padding);
+    }
+
+    .ptp-page-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .ptp-page-header h1 {
+        font-size: 26px;
+    }
+
+    .ptp-page-header-actions {
+        width: auto;
+    }
+
+    .ptp-page-header-actions .ptp-comms-button {
+        flex: none;
+    }
+
+    .ptp-inbox-container {
+        gap: var(--ptp-tablet-gap);
+    }
+
+    .ptp-conversation-item {
+        padding: 14px 16px;
+        gap: 12px;
+    }
+
+    .ptp-conversation-avatar {
+        width: 44px;
+        height: 44px;
+        font-size: 15px;
+    }
+
+    .ptp-conversation-name {
+        font-size: 15px;
+    }
+
+    .ptp-comms-tab .dashicons {
+        display: inline-block;
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+    }
+
+    .ptp-search-bar {
+        flex-direction: row;
+    }
+
+    .ptp-search-input-wrapper {
+        min-width: 280px;
+    }
+
+    .ptp-search-bar .ptp-comms-button {
+        width: auto;
+    }
+
+    .ptp-bulk-actions-bar {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .ptp-hide-mobile {
+        display: table-cell;
+    }
+
+    .ptp-conversation-thread {
+        height: 500px;
+        max-height: 65vh;
+        padding: 16px;
+    }
+
+    .ptp-message-bubble {
+        max-width: 75%;
+    }
+
+    .ptp-message-compose {
+        padding: 16px;
+    }
+
+    .ptp-message-compose-row {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+
+    .ptp-message-compose-row .ptp-comms-form-control:first-child {
+        width: 120px;
+        flex-shrink: 0;
+    }
+
+    .ptp-contact-header {
+        flex-direction: row;
+        text-align: left;
+    }
+
+    .ptp-contact-avatar-large {
+        margin: 0;
+    }
+
+    .ptp-contact-actions {
+        flex-direction: row;
+    }
+}
+
+/* ========================================
+   DESKTOP STYLES (1024px+)
+   ======================================== */
+@media (min-width: 1024px) {
+    .wrap.ptp-comms-wrap {
+        padding: var(--ptp-desktop-padding);
+    }
+
+    .ptp-page-header h1 {
+        font-size: 28px;
+    }
+
+    .ptp-inbox-container {
+        gap: var(--ptp-desktop-gap);
+    }
+
+    /* Split view layout */
+    .ptp-conversation-view-layout {
+        flex-direction: row;
+    }
+
+    .ptp-conversation-main {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .ptp-conversation-sidebar {
+        width: 320px;
+        flex-shrink: 0;
+    }
+
+    .ptp-conversation-item {
+        padding: 16px 20px;
+    }
+
+    .ptp-conversation-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 16px;
+    }
+
+    .ptp-comms-table th,
+    .ptp-comms-table td {
+        padding: 14px 16px;
+        font-size: 14px;
+    }
+
+    .ptp-conversation-thread {
+        height: 600px;
+        max-height: 70vh;
+        padding: 20px;
+    }
+
+    .ptp-message-bubble {
+        max-width: 70%;
+    }
+
+    .ptp-message-compose {
+        padding: 20px;
+    }
+}
+
+/* ========================================
+   LARGE DESKTOP STYLES (1400px+)
+   ======================================== */
+@media (min-width: 1400px) {
+    .wrap.ptp-comms-wrap {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .ptp-conversation-sidebar {
+        width: 380px;
+    }
+}
+
+/* ========================================
+   SHARED INBOX SPECIFIC STYLES
+   ======================================== */
+
+/* Multi-channel indicator */
+.ptp-channel-selector {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.ptp-channel-selector-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border: 2px solid var(--ptp-gray-300);
+    background: var(--ptp-white);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ptp-channel-selector-btn:hover {
+    border-color: var(--ptp-primary);
+    background: rgba(252, 185, 0, 0.05);
+}
+
+.ptp-channel-selector-btn.active {
+    border-color: var(--ptp-primary);
+    background: var(--ptp-primary);
+    color: var(--ptp-black);
+}
+
+.ptp-channel-selector-btn .channel-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* WhatsApp specific */
+.ptp-channel-selector-btn.whatsapp.active {
+    border-color: #25D366;
+    background: #25D366;
+    color: white;
+}
+
+/* Team assignment */
+.ptp-team-assignment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--ptp-gray-50);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.ptp-team-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--ptp-info);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.ptp-team-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.ptp-team-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ptp-black);
+}
+
+.ptp-team-role {
+    font-size: 11px;
+    color: var(--ptp-gray-600);
+}
+
+/* Notification status */
+.ptp-notification-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--ptp-success-light);
+    border-radius: 6px;
+    font-size: 12px;
+    color: #166534;
+}
+
+.ptp-notification-status.whatsapp {
+    background: #dcfce7;
+}
+
+.ptp-notification-status .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+/* Quick actions floating button (mobile) */
+.ptp-fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ptp-primary) 0%, var(--ptp-primary-dark) 100%);
+    color: var(--ptp-black);
+    border: none;
+    box-shadow: 0 4px 12px rgba(252, 185, 0, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.ptp-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(252, 185, 0, 0.5);
+}
+
+.ptp-fab .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+@media (min-width: 768px) {
+    .ptp-fab {
+        display: none;
+    }
+}
+
+/* ========================================
+   CONTACT MANAGEMENT CRM STYLES
+   ======================================== */
+
+/* Contact card grid */
+.ptp-contact-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+@media (min-width: 640px) {
+    .ptp-contact-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .ptp-contact-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1400px) {
+    .ptp-contact-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Contact card */
+.ptp-contact-card {
+    background: var(--ptp-white);
+    border-radius: var(--ptp-radius-lg);
+    border: 1px solid var(--ptp-gray-200);
+    padding: 16px;
+    transition: all 0.2s ease;
+}
+
+.ptp-contact-card:hover {
+    box-shadow: var(--ptp-shadow-md);
+    border-color: var(--ptp-primary);
+}
+
+.ptp-contact-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.ptp-contact-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.ptp-contact-card-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ptp-black);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ptp-contact-card-phone {
+    font-size: 13px;
+    color: var(--ptp-gray-600);
+}
+
+.ptp-contact-card-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ptp-contact-card-score.high {
+    background: var(--ptp-success-light);
+    color: #166534;
+}
+
+.ptp-contact-card-score.medium {
+    background: var(--ptp-warning-light);
+    color: #92400e;
+}
+
+.ptp-contact-card-score.low {
+    background: var(--ptp-danger-light);
+    color: #b91c1c;
+}
+
+.ptp-contact-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.ptp-contact-card-tag {
+    padding: 2px 8px;
+    background: var(--ptp-gray-100);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--ptp-gray-700);
+}
+
+.ptp-contact-card-actions {
+    display: flex;
+    gap: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--ptp-gray-200);
+}
+
+.ptp-contact-card-action {
+    flex: 1;
+    padding: 6px;
+    background: var(--ptp-gray-50);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--ptp-gray-700);
+    transition: all 0.2s ease;
+}
+
+.ptp-contact-card-action:hover {
+    background: var(--ptp-primary);
+    color: var(--ptp-black);
+}
+
+/* Relationship score meter */
+.ptp-score-meter {
+    width: 100%;
+    height: 6px;
+    background: var(--ptp-gray-200);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.ptp-score-meter-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.ptp-score-meter-fill.high {
+    background: var(--ptp-success);
+}
+
+.ptp-score-meter-fill.medium {
+    background: var(--ptp-warning);
+}
+
+.ptp-score-meter-fill.low {
+    background: var(--ptp-danger);
+}
+
+/* ========================================
+   ACCESSIBILITY IMPROVEMENTS
+   ======================================== */
+
+/* Touch targets */
+@media (pointer: coarse) {
+    .ptp-comms-button,
+    .ptp-comms-tab,
+    .ptp-conversation-item,
+    .ptp-channel-selector-btn {
+        min-height: 44px;
+    }
+
+    .ptp-conversation-item {
+        padding: 14px;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* Focus visible */
+.ptp-comms-button:focus-visible,
+.ptp-comms-tab:focus-visible,
+.ptp-conversation-item:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--ptp-primary);
+    outline-offset: 2px;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .ptp-comms-button {
+        border: 2px solid currentColor;
+    }
+
+    .ptp-conversation-item.unread {
+        border-left-width: 6px;
+    }
+
+    .ptp-message-bubble {
+        border: 2px solid currentColor;
+    }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+@media print {
+    .ptp-page-header-actions,
+    .ptp-search-bar,
+    .ptp-bulk-actions-bar,
+    .ptp-message-compose,
+    .ptp-fab,
+    .ptp-channel-selector,
+    .ptp-comms-tabs {
+        display: none !important;
+    }
+
+    .wrap.ptp-comms-wrap {
+        padding: 0;
+    }
+
+    .ptp-comms-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        page-break-inside: avoid;
+    }
+
+    .ptp-conversation-thread {
+        max-height: none;
+        height: auto;
+        overflow: visible;
+    }
+
+    .ptp-conversation-view-layout {
+        flex-direction: column;
+    }
+
+    .ptp-conversation-sidebar {
+        width: 100%;
+    }
+}
+
+/* ========================================
+   DARK MODE PREPARATION
+   ======================================== */
+@media (prefers-color-scheme: dark) {
+    /* Dark mode styles - ready for future implementation */
+}
+
+/* ========================================
+   LOADING SKELETON
+   ======================================== */
+.ptp-skeleton {
+    background: linear-gradient(90deg, var(--ptp-gray-200) 25%, var(--ptp-gray-100) 50%, var(--ptp-gray-200) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.ptp-skeleton-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.ptp-skeleton-text {
+    height: 14px;
+    width: 100%;
+}
+
+.ptp-skeleton-text.short {
+    width: 60%;
+}
+
+.ptp-skeleton-text.medium {
+    width: 80%;
+}
