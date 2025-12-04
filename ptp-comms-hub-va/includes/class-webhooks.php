@@ -166,14 +166,20 @@ class PTP_Comms_Hub_Webhooks {
             array('twilio_sid' => $sid)
         );
         error_log('[PTP Webhook] Message logged with ID: ' . $message_id);
-        
+
         // Update conversation
         $conv_id = PTP_Comms_Hub_Conversations::get_or_create_conversation($contact_id);
         error_log('[PTP Webhook] Conversation ID: ' . $conv_id);
-        
+
         PTP_Comms_Hub_Conversations::update_conversation($conv_id, $body, 'inbound');
         error_log('[PTP Webhook] Conversation updated');
-        
+
+        // CRITICAL: Send notifications to inbox users (email + WhatsApp + in-app)
+        if (class_exists('PTP_Comms_Hub_Notifications')) {
+            error_log('[PTP Webhook] Sending notifications for new SMS');
+            PTP_Comms_Hub_Notifications::notify_sms_reply($contact_id, $body, 'sms');
+        }
+
         // Trigger Teams Shared Inbox (iOS Messages-style)
         if (ptp_comms_get_setting('teams_inbox_webhook_url')) {
             error_log('[PTP Webhook] Triggering Teams Shared Inbox');
