@@ -540,11 +540,4 @@ function ptp_comms_send_whatsapp($to, $message, $media_url = null) {
     }
     return array('success' => false, 'error' => 'WhatsApp not configured');
 }
-
-/**
- * Check if WhatsApp is configured
- */
-function ptp_comms_is_whatsapp_configured() {
-    $whatsapp = ptp_comms_whatsapp();
-    return $whatsapp && $whatsapp->is_configured();
-}
+// Note: ptp_comms_is_whatsapp_configured() is defined in helpers.php
