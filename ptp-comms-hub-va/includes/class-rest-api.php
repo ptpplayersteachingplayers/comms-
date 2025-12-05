@@ -144,7 +144,39 @@ class PTP_Comms_Hub_REST_API {
             'callback' => array(__CLASS__, 'handle_zoom_webhook'),
             'permission_callback' => '__return_true'
         ));
-        
+
+        // ==========================================
+        // TWILIO SMS/WHATSAPP WEBHOOKS (REST API)
+        // ==========================================
+
+        // Incoming SMS webhook (more reliable than rewrite rules)
+        register_rest_route('ptp-comms/v1', '/sms-incoming', array(
+            'methods' => 'POST',
+            'callback' => array(__CLASS__, 'handle_sms_incoming'),
+            'permission_callback' => '__return_true'
+        ));
+
+        // SMS status callback
+        register_rest_route('ptp-comms/v1', '/sms-status', array(
+            'methods' => 'POST',
+            'callback' => array(__CLASS__, 'handle_sms_status'),
+            'permission_callback' => '__return_true'
+        ));
+
+        // WhatsApp incoming webhook
+        register_rest_route('ptp-comms/v1', '/whatsapp-incoming', array(
+            'methods' => 'POST',
+            'callback' => array(__CLASS__, 'handle_whatsapp_incoming'),
+            'permission_callback' => '__return_true'
+        ));
+
+        // WhatsApp status callback
+        register_rest_route('ptp-comms/v1', '/whatsapp-status', array(
+            'methods' => 'POST',
+            'callback' => array(__CLASS__, 'handle_whatsapp_status'),
+            'permission_callback' => '__return_true'
+        ));
+
         // Call notes endpoint
         register_rest_route('ptp-comms/v1', '/call-notes', array(
             'methods' => array('GET', 'POST'),
@@ -1180,13 +1212,193 @@ class PTP_Comms_Hub_REST_API {
      */
     public static function get_segment_count($request) {
         $segment_id = intval($request->get_param('segment_id'));
-        
+
         if (!class_exists('PTP_Comms_Hub_Saved_Segments')) {
             return rest_ensure_response(array('count' => 0));
         }
-        
+
         $count = PTP_Comms_Hub_Saved_Segments::count_contacts($segment_id);
-        
+
         return rest_ensure_response(array('count' => $count));
+    }
+
+    // ==========================================
+    // SMS/WHATSAPP WEBHOOK HANDLERS
+    // ==========================================
+
+    /**
+     * Handle incoming SMS via REST API (more reliable than rewrite rules)
+     */
+    public static function handle_sms_incoming($request) {
+        error_log('[PTP REST API] SMS Incoming webhook received');
+        error_log('[PTP REST API] POST data: ' . print_r($_POST, true));
+
+        $from = isset($_POST['From']) ? sanitize_text_field($_POST['From']) : '';
+        $body = isset($_POST['Body']) ? sanitize_textarea_field($_POST['Body']) : '';
+        $sid = isset($_POST['MessageSid']) ? sanitize_text_field($_POST['MessageSid']) : '';
+
+        if (empty($from) || empty($body)) {
+            error_log('[PTP REST API] Missing from or body');
+            return new WP_REST_Response(array('error' => 'Missing required fields'), 400);
+        }
+
+        // Get or create contact
+        $contact_id = function_exists('ptp_comms_get_or_create_contact')
+            ? ptp_comms_get_or_create_contact($from)
+            : 0;
+
+        if (!$contact_id) {
+            error_log('[PTP REST API] Could not get/create contact');
+            return new WP_REST_Response(array('error' => 'Contact error'), 500);
+        }
+
+        // Handle opt-out (STOP)
+        if (preg_match('/\b(stop|unsubscribe|opt-out|cancel|quit|end)\b/i', $body)) {
+            if (class_exists('PTP_Comms_Hub_Contacts')) {
+                PTP_Comms_Hub_Contacts::opt_out($contact_id);
+            }
+            if (class_exists('PTP_Comms_Hub_SMS_Service')) {
+                $sms = new PTP_Comms_Hub_SMS_Service();
+                $sms->send_sms($from, 'You have been unsubscribed. Reply START to opt back in.');
+            }
+            return new WP_REST_Response(array('status' => 'opted_out'), 200);
+        }
+
+        // Handle opt-in (START)
+        if (preg_match('/\b(start|subscribe|opt-in|yes|unstop)\b/i', $body)) {
+            if (class_exists('PTP_Comms_Hub_Contacts')) {
+                PTP_Comms_Hub_Contacts::opt_in($contact_id);
+            }
+            if (class_exists('PTP_Comms_Hub_SMS_Service')) {
+                $sms = new PTP_Comms_Hub_SMS_Service();
+                $sms->send_sms($from, 'Welcome back! You are now subscribed.');
+            }
+            return new WP_REST_Response(array('status' => 'opted_in'), 200);
+        }
+
+        // Log the message
+        $message_id = function_exists('ptp_comms_log_message')
+            ? ptp_comms_log_message($contact_id, 'sms', 'inbound', $body, array('twilio_sid' => $sid))
+            : 0;
+
+        error_log('[PTP REST API] Message logged: ' . $message_id);
+
+        // Update conversation
+        if (class_exists('PTP_Comms_Hub_Conversations')) {
+            $conv_id = PTP_Comms_Hub_Conversations::get_or_create_conversation($contact_id);
+            PTP_Comms_Hub_Conversations::update_conversation($conv_id, $body, 'inbound');
+        }
+
+        // Send notifications (email, WhatsApp, in-app)
+        if (class_exists('PTP_Comms_Hub_Notifications')) {
+            PTP_Comms_Hub_Notifications::notify_sms_reply($contact_id, $body, 'sms');
+        }
+
+        // Trigger Teams if configured
+        $contact = class_exists('PTP_Comms_Hub_Contacts') ? PTP_Comms_Hub_Contacts::get_contact($contact_id) : null;
+        if ($contact && function_exists('ptp_comms_get_setting')) {
+            if (ptp_comms_get_setting('teams_inbox_webhook_url')) {
+                do_action('ptp_comms_sms_received', $contact, $body, $from);
+            } elseif (function_exists('ptp_comms_is_teams_configured') && ptp_comms_is_teams_configured()) {
+                if (class_exists('PTP_Comms_Hub_Teams_Integration')) {
+                    PTP_Comms_Hub_Teams_Integration::notify_inbound_message($contact, $body, 'sms');
+                }
+            }
+        }
+
+        return new WP_REST_Response(array('status' => 'received', 'message_id' => $message_id), 200);
+    }
+
+    /**
+     * Handle SMS status callback
+     */
+    public static function handle_sms_status($request) {
+        global $wpdb;
+
+        $sid = isset($_POST['MessageSid']) ? sanitize_text_field($_POST['MessageSid']) : '';
+        $status = isset($_POST['MessageStatus']) ? sanitize_text_field($_POST['MessageStatus']) : '';
+        $error_code = isset($_POST['ErrorCode']) ? sanitize_text_field($_POST['ErrorCode']) : '';
+
+        if (empty($sid)) {
+            return new WP_REST_Response(array('error' => 'Missing MessageSid'), 400);
+        }
+
+        $update_data = array(
+            'status' => $status,
+            'updated_at' => current_time('mysql')
+        );
+
+        if ($error_code) {
+            $update_data['error_message'] = $error_code . ': ' . ($_POST['ErrorMessage'] ?? '');
+        }
+
+        // Update messages table
+        $wpdb->update(
+            $wpdb->prefix . 'ptp_messages',
+            $update_data,
+            array('twilio_sid' => $sid)
+        );
+
+        // Update logs table
+        $wpdb->update(
+            $wpdb->prefix . 'ptp_communication_logs',
+            $update_data,
+            array('twilio_sid' => $sid)
+        );
+
+        return new WP_REST_Response(array('status' => 'updated'), 200);
+    }
+
+    /**
+     * Handle incoming WhatsApp message
+     */
+    public static function handle_whatsapp_incoming($request) {
+        error_log('[PTP REST API] WhatsApp Incoming webhook received');
+
+        $from = isset($_POST['From']) ? sanitize_text_field($_POST['From']) : '';
+        $body = isset($_POST['Body']) ? sanitize_textarea_field($_POST['Body']) : '';
+        $sid = isset($_POST['MessageSid']) ? sanitize_text_field($_POST['MessageSid']) : '';
+
+        // WhatsApp numbers come as whatsapp:+1234567890
+        $from = str_replace('whatsapp:', '', $from);
+
+        if (empty($from) || empty($body)) {
+            return new WP_REST_Response(array('error' => 'Missing required fields'), 400);
+        }
+
+        // Get or create contact
+        $contact_id = function_exists('ptp_comms_get_or_create_contact')
+            ? ptp_comms_get_or_create_contact($from)
+            : 0;
+
+        if (!$contact_id) {
+            return new WP_REST_Response(array('error' => 'Contact error'), 500);
+        }
+
+        // Log the message
+        $message_id = function_exists('ptp_comms_log_message')
+            ? ptp_comms_log_message($contact_id, 'whatsapp', 'inbound', $body, array('twilio_sid' => $sid))
+            : 0;
+
+        // Update conversation
+        if (class_exists('PTP_Comms_Hub_Conversations')) {
+            $conv_id = PTP_Comms_Hub_Conversations::get_or_create_conversation($contact_id);
+            PTP_Comms_Hub_Conversations::update_conversation($conv_id, $body, 'inbound', 'whatsapp');
+        }
+
+        // Send notifications
+        if (class_exists('PTP_Comms_Hub_Notifications')) {
+            PTP_Comms_Hub_Notifications::notify_sms_reply($contact_id, $body, 'whatsapp');
+        }
+
+        return new WP_REST_Response(array('status' => 'received', 'message_id' => $message_id), 200);
+    }
+
+    /**
+     * Handle WhatsApp status callback
+     */
+    public static function handle_whatsapp_status($request) {
+        // Same as SMS status
+        return self::handle_sms_status($request);
     }
 }

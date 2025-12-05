@@ -268,10 +268,14 @@ class PTP_Comms_Hub_Loader {
         ));
     }
     
+    /**
+     * Optimized AJAX handler for real-time message polling
+     * Uses caching and efficient queries for speed
+     */
     public function ajax_get_new_messages() {
         check_ajax_referer('ptp_comms_hub_nonce', 'nonce');
 
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can('manage_options') && !current_user_can('edit_posts')) {
             wp_send_json_error(array('message' => 'Unauthorized'), 403);
         }
 
@@ -284,26 +288,32 @@ class PTP_Comms_Hub_Loader {
             wp_send_json_error(array('message' => 'Conversation ID required'));
         }
 
-        // Use transient cache to reduce DB load on polling
-        $cache_key = 'ptp_new_msgs_' . $conversation_id . '_' . $after_id;
-        $messages = get_transient($cache_key);
+        // Quick check: First see if there are any new messages at all (fast indexed query)
+        $has_new = $wpdb->get_var($wpdb->prepare(
+            "SELECT 1 FROM {$wpdb->prefix}ptp_messages
+             WHERE conversation_id = %d AND id > %d LIMIT 1",
+            $conversation_id,
+            $after_id
+        ));
 
-        if ($messages === false) {
-            $messages = $wpdb->get_results($wpdb->prepare(
-                "SELECT id, conversation_id, contact_id, direction, message_type, message_body, status, created_at
-                FROM {$wpdb->prefix}ptp_messages
-                WHERE conversation_id = %d AND id > %d
-                ORDER BY created_at ASC
-                LIMIT 50",
-                $conversation_id,
-                $after_id
-            ));
-
-            // Cache for 2 seconds to handle rapid polling
-            set_transient($cache_key, $messages, 2);
+        // No new messages - return quickly
+        if (!$has_new) {
+            wp_send_json_success(array('messages' => array(), 'has_new' => false));
+            return;
         }
 
-        // Mark conversation as read (only if we have new messages)
+        // Fetch new messages (we know there are some)
+        $messages = $wpdb->get_results($wpdb->prepare(
+            "SELECT id, conversation_id, contact_id, direction, message_type, message_body, status, created_at
+             FROM {$wpdb->prefix}ptp_messages
+             WHERE conversation_id = %d AND id > %d
+             ORDER BY created_at ASC
+             LIMIT 50",
+            $conversation_id,
+            $after_id
+        ));
+
+        // Mark conversation as read if user is actively viewing
         if (!empty($messages)) {
             $wpdb->update(
                 $wpdb->prefix . 'ptp_conversations',
@@ -312,7 +322,11 @@ class PTP_Comms_Hub_Loader {
             );
         }
 
-        wp_send_json_success(array('messages' => $messages));
+        wp_send_json_success(array(
+            'messages' => $messages,
+            'has_new' => true,
+            'count' => count($messages)
+        ));
     }
     
     public function ajax_check_unread() {

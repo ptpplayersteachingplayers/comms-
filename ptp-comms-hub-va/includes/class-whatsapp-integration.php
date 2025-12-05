@@ -253,9 +253,12 @@ class PTP_Comms_Hub_WhatsApp_Integration {
             $contact_id = $contact->id;
         }
 
-        // Find or create conversation
+        // Find or create conversation (unified - same conversation for SMS and WhatsApp)
+        // Look for any active conversation for this contact, regardless of channel
         $conversation = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}ptp_conversations WHERE contact_id = %d",
+            "SELECT * FROM {$wpdb->prefix}ptp_conversations
+             WHERE contact_id = %d AND status = 'active'
+             ORDER BY last_message_at DESC LIMIT 1",
             $contact_id
         ));
 
@@ -270,14 +273,15 @@ class PTP_Comms_Hub_WhatsApp_Integration {
                     'last_message_direction' => 'inbound',
                     'unread_count' => 1,
                     'channel' => 'whatsapp',
-                    'created_at' => current_time('mysql')
+                    'created_at' => current_time('mysql'),
+                    'updated_at' => current_time('mysql')
                 )
             );
             $conversation_id = $wpdb->insert_id;
         } else {
             $conversation_id = $conversation->id;
 
-            // Update conversation
+            // Update conversation - keep unified messaging (update channel to show last used)
             $wpdb->update(
                 $wpdb->prefix . 'ptp_conversations',
                 array(
@@ -285,12 +289,23 @@ class PTP_Comms_Hub_WhatsApp_Integration {
                     'last_message_at' => current_time('mysql'),
                     'last_message_direction' => 'inbound',
                     'unread_count' => $conversation->unread_count + 1,
-                    'channel' => 'whatsapp',
-                    'status' => 'active'
+                    'channel' => 'whatsapp', // Update to show last message channel
+                    'status' => 'active',
+                    'updated_at' => current_time('mysql')
                 ),
                 array('id' => $conversation_id)
             );
         }
+
+        // Update contact's preferred channel and last interaction
+        $wpdb->update(
+            $wpdb->prefix . 'ptp_contacts',
+            array(
+                'preferred_contact_method' => 'whatsapp',
+                'last_interaction_at' => current_time('mysql')
+            ),
+            array('id' => $contact_id)
+        );
 
         // Store the message
         $media_urls = array();
@@ -329,6 +344,27 @@ class PTP_Comms_Hub_WhatsApp_Integration {
                 'status' => 'received'
             ));
         }
+
+        // Notify shared inbox subscribers (VAs) via WhatsApp
+        $contact_name = $contact ? trim($contact->parent_first_name . ' ' . $contact->parent_last_name) : 'Unknown';
+        if (empty($contact_name) || $contact_name === 'WhatsApp Contact') {
+            $contact_name = ptp_comms_format_phone($normalized_phone);
+        }
+
+        $alert_message = "📱 *New WhatsApp Message*\n";
+        $alert_message .= "From: {$contact_name}\n";
+        $alert_message .= "Phone: " . ptp_comms_format_phone($normalized_phone) . "\n\n";
+        $alert_message .= "\"" . substr($body, 0, 200) . (strlen($body) > 200 ? '...' : '') . "\"\n\n";
+        $alert_message .= "Reply via: " . admin_url('admin.php?page=ptp-comms-inbox&action=view&conversation=' . $conversation_id);
+
+        $this->notify_shared_inbox($alert_message, array(
+            'contact_id' => $contact_id,
+            'phone' => $normalized_phone,
+            'name' => $contact_name
+        ));
+
+        // Fire action for other integrations (Teams, etc.)
+        do_action('ptp_comms_whatsapp_received', $contact_id, $body, $normalized_phone);
 
         return new WP_REST_Response(array('success' => true), 200);
     }
