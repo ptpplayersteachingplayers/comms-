@@ -415,10 +415,11 @@ class PTP_Comms_Hub_Activator {
             KEY message_type (message_type),
             KEY status (status),
             KEY twilio_sid (twilio_sid),
-            KEY created_at (created_at)
+            KEY created_at (created_at),
+            KEY conv_id_polling (conversation_id, id)
         ) $charset_collate;";
         dbDelta($sql);
-        
+
         // Communication logs table
         $sql = "CREATE TABLE {$wpdb->prefix}ptp_communication_logs (
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
